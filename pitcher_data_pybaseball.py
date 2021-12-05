@@ -21,7 +21,6 @@ def games_pitched_in_timeframe(first_name, last_name, start_date, end_date):
         if day[0] == '0':
             day = day[1]
             date_split[2] = day
-        date_clean = '-'.join(date_split)
         clean_period.append('-'.join(date_split))
     return clean_period
 
