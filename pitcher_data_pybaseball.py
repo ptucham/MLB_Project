@@ -1,5 +1,6 @@
 import pybaseball
 import pandas as pd
+import json
 import matplotlib.pyplot as plt
 from collections import Counter
 
@@ -118,9 +119,19 @@ def pitch_graph(pitching_breakdowns, start_date, end_date):
     zs = strikes_zs + balls_zs + hit_zs
     colors = strikes_colors + balls_colors + hit_colors
     
-    plt.title('All Pitches Thrown between ' + start_date + ' and ' + end_date)
-    plt.scatter(xs,zs,color = colors)
-    plt.show()
+    values = {
+        'plate_x': xs,
+        'plate_z': zs,
+        'indicator': colors
+    }
+
+    jsonString =  json.dumps(values)
+    jsonFile = open("data/pitcher_graph_data.json", "w")
+    jsonFile.write(jsonString)
+    jsonFile.close()
+    # plt.title('All Pitches Thrown between ' + start_date + ' and ' + end_date)
+    # plt.scatter(xs,zs,color = colors)
+    # plt.show()
 
 def main(first_name, last_name, start_date, end_date, team):
     first_name = first_name.lower()
@@ -140,8 +151,8 @@ def main(first_name, last_name, start_date, end_date, team):
         game_pitch_data = game_pitch_data.append(pitcher_game_complete_data(x, desired_pitcher_id))
     game_pitch_data = game_pitch_data.iloc[::-1].reset_index(drop = True)
     
-    pitching_dates = games_pitched_in_timeframe(first_name, last_name, start_date, end_date)
-    pitch_breakdown_in_timeframe = pitch_summary(game_pitch_data)
+    # pitching_dates = games_pitched_in_timeframe(first_name, last_name, start_date, end_date)
+    # pitch_breakdown_in_timeframe = pitch_summary(game_pitch_data)
     
     # # summary stats at the top
     # print(first_name, last_name)
@@ -151,12 +162,4 @@ def main(first_name, last_name, start_date, end_date, team):
     # print('Pitch Brekdown for Time Period: ' + str(pitch_breakdown_in_timeframe))
     
     pitch_breakdowns = ball_and_strike(game_pitch_data)
-    return pitch_graph(pitch_breakdowns, start_date, end_date)
-
-# first_name = input('Enter pitcher first name:')
-# last_name = input('Enter pitcher last name:')
-# start_date =  input('Enter Start Date:')
-# end_date = input('Enter End Date:')
-# team = input('Enter pitcher team abr:')
-
-# main(first_name, last_name, start_date, end_date, team)
+    pitch_graph(pitch_breakdowns, start_date, end_date)
