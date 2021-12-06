@@ -125,6 +125,9 @@ def pitch_graph(pitching_breakdowns, start_date, end_date):
 def main(first_name, last_name, start_date, end_date, team):
     first_name = first_name.lower()
     last_name = last_name.lower()
+    start_date = str(start_date)
+    end_date = str(end_date)
+
     desired_pitcher = pitcher(last_name, first_name)
     desired_pitcher_id = desired_pitcher['key_mlbam'][0]
     
@@ -148,12 +151,12 @@ def main(first_name, last_name, start_date, end_date, team):
     print('Pitch Brekdown for Time Period: ' + str(pitch_breakdown_in_timeframe))
     
     pitch_breakdowns = ball_and_strike(game_pitch_data)
-    pitch_graph(pitch_breakdowns, start_date, end_date)
+    return pitch_graph(pitch_breakdowns, start_date, end_date)
 
 first_name = input('Enter pitcher first name:')
 last_name = input('Enter pitcher last name:')
 start_date =  input('Enter Start Date:')
 end_date = input('Enter End Date:')
-team = input('Enter pitcher team name:')
+team = input('Enter pitcher team abr:')
 
 main(first_name, last_name, start_date, end_date, team)
