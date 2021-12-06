@@ -2,4 +2,4 @@ The data being used for this project is from a user on Kaggle.https://www.kaggle
 
 UPDATE:
 pybaseabll being implemented
-The jupyter notebook that implements pybaseball only works for a singular game summary at the current moment.
+The jupyter notebooks using pybaseball are indicated in the title of the file.
