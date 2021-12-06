@@ -143,20 +143,20 @@ def main(first_name, last_name, start_date, end_date, team):
     pitching_dates = games_pitched_in_timeframe(first_name, last_name, start_date, end_date)
     pitch_breakdown_in_timeframe = pitch_summary(game_pitch_data)
     
-    #     summary stats at the top
-    print(first_name, last_name)
-    print(start_date + ' through ' + end_date)
-    print('Total Games Pitched: ' + str(len(pitching_dates)))
-    print('Dates Player Pitched: ' + str(pitching_dates))
-    print('Pitch Brekdown for Time Period: ' + str(pitch_breakdown_in_timeframe))
+    # # summary stats at the top
+    # print(first_name, last_name)
+    # print(start_date + ' through ' + end_date)
+    # print('Total Games Pitched: ' + str(len(pitching_dates)))
+    # print('Dates Player Pitched: ' + str(pitching_dates))
+    # print('Pitch Brekdown for Time Period: ' + str(pitch_breakdown_in_timeframe))
     
     pitch_breakdowns = ball_and_strike(game_pitch_data)
     return pitch_graph(pitch_breakdowns, start_date, end_date)
 
-first_name = input('Enter pitcher first name:')
-last_name = input('Enter pitcher last name:')
-start_date =  input('Enter Start Date:')
-end_date = input('Enter End Date:')
-team = input('Enter pitcher team abr:')
+# first_name = input('Enter pitcher first name:')
+# last_name = input('Enter pitcher last name:')
+# start_date =  input('Enter Start Date:')
+# end_date = input('Enter End Date:')
+# team = input('Enter pitcher team abr:')
 
-main(first_name, last_name, start_date, end_date, team)
+# main(first_name, last_name, start_date, end_date, team)

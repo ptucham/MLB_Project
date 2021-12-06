@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request
+from pitcher_data_pybaseball import *
 
 app = Flask(__name__)
 
@@ -13,4 +14,5 @@ def results():
     start_date = request.form['startDate']
     end_date = request.form['endDate']
     team = request.form['teams']
-    return 'Pitcher name: %s %s <br/> Dates: %s through %s<br/> Team: %s <br/> <a href="/">Back Home</a>' % (first_name, last_name, start_date, end_date, team)
+    # return 'Pitcher name: %s %s <br/> Dates: %s through %s<br/> Team: %s <br/> <a href="/">Back Home</a>' % (first_name, last_name, start_date, end_date, team)
+    return main(first_name, last_name, start_date, end_date, team)
