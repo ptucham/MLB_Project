@@ -53,14 +53,15 @@ def pitcher_game_number(dates, team):
     for x in range(len(dates)):
         game = pitching_logs.loc[pitching_logs['Date'] == game_dates[x]].reset_index()
         game_data = data.loc[data['game_date'] == dates[x]]
-        if game['Home'][0] == True:
-            pitcher_game_data = game_data.loc[game_data['away_team'] == 'LAD']
-            game_pk = list(pitcher_game_data['game_pk'])
-            game_ids.append(game_pk[0])
-        else:
-            pitcher_game_data = game_data.loc[game_data['home_team'] == 'LAD']
-            game_pk = list(pitcher_game_data['game_pk'])
-            game_ids.append(game_pk[0])
+        if len(game) > 0:
+            if game['Home'][0] == True:
+                pitcher_game_data = game_data.loc[game_data['away_team'] == team]
+                game_pk = list(pitcher_game_data['game_pk'])
+                game_ids.append(game_pk[0])
+            else:
+                pitcher_game_data = game_data.loc[game_data['home_team'] == team]
+                game_pk = list(pitcher_game_data['game_pk'])
+                game_ids.append(game_pk[0])
 
     return game_ids
 
@@ -129,6 +130,7 @@ def pitch_graph(pitching_breakdowns, start_date, end_date):
     jsonFile = open("data/pitcher_graph_data.json", "w")
     jsonFile.write(jsonString)
     jsonFile.close()
+    return jsonString
     # plt.title('All Pitches Thrown between ' + start_date + ' and ' + end_date)
     # plt.scatter(xs,zs,color = colors)
     # plt.show()

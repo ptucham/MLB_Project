@@ -5,15 +5,17 @@
         <script src='https://d3js.org/d3.v7.min.js'></script>
     </head>
     <body>
-        <svg width = 400 height = 400></svg>
+        <svg width = 500 height = 500></svg>
+        
         <script>
-            d3.json('../data/pitcher_graph_data').then((data) => {
+            var data = JSON.parse('{{ data | tojson | safe}}');
             console.log(data)
-            
+ 
+            console.log(data)
             const svg = d3.select('svg');
             const height = svg.attr('height');
             const width = svg.attr('width');
-            const margin = {top: 20, right: 0, bottom: 0, left: 20};
+            const margin = {top: 10, right: 30, bottom: 50, left: 50};
             const chartWidth = width - margin.left - margin.right;
             const chartHeight = height - margin.top - margin.bottom;
             const chartArea = svg.append('g')
@@ -25,15 +27,28 @@
             const plate_z_Extent = d3.extent(data['plate_z']);
             const plate_z_Scale = d3.scaleLinear().domain(plate_z_Extent).range([chartHeight,0]);
 
+            let leftAxis = d3.axisLeft(plate_z_Scale);
+
+            chartArea.append("g")
+            .attr("class", "y axis")
+            .attr("transform", `translate(${margin.left-50},${margin.top})`)
+            .call(leftAxis);
+
+            let bottomAxis = d3.axisBottom(plate_x_Scale);
+
+            chartArea.append("g")
+            .attr("class", "x axis")
+            .attr("transform", `translate(${margin.left - 50},${chartHeight + margin.top})`)
+            .call(bottomAxis);
+
             
-                for (let i = 0; i < data['plate_x'].length; i++) {
-                    svg.append('circle')
-                        .attr('r',3)
-                        .attr('cx', plate_x_Scale(data['plate_x'][i]))
-                        .attr('cy', plate_z_Scale(data['plate_z'][i]))
-                        .style('fill', data['indicator'][i]);
-                    }
-            })
+            for (let i = 0; i < data['plate_x'].length; i++) {
+                chartArea.append('circle')
+                    .attr('r',3)
+                    .attr('cx', plate_x_Scale(data['plate_x'][i]))
+                    .attr('cy', plate_z_Scale(data['plate_z'][i]))
+                    .style('fill', data['indicator'][i]);
+                }
         </script>
     </body>
 </html>
