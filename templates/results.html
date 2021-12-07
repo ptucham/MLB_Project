@@ -15,9 +15,7 @@
         
         <script>
             var data = JSON.parse('{{ data | tojson | safe}}');
-            console.log(data)
- 
-            console.log(data)
+
             const svg = d3.select('svg');
             const height = svg.attr('height');
             const width = svg.attr('width');
