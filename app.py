@@ -20,6 +20,6 @@ def results():
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "data", "pitcher_graph_data.json")
     data = json.load(open(json_url)) 
-    
-    return render_template('results.html', data=data)
+
+    return render_template('results.html', data=data, pfname=first_name, plname=last_name, psdate=start_date, pedate=end_date, pteam=team)
     # return 'Pitcher name: %s %s <br/> Dates: %s through %s<br/> Team: %s <br/> <a href="/">Back Home</a>' % (first_name, last_name, start_date, end_date, team)
