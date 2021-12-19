@@ -1,82 +1,19 @@
 import pybaseball
 import pandas as pd
 import json
-from collections import Counter
 
-def pitcher(last_name, first_name):
-    pitcher = pybaseball.playerid_lookup(last_name, first_name)
-    return pitcher
-
-def games_pitched_in_timeframe(first_name, last_name, start_date, end_date):
-    l_name = last_name
-    f_name = first_name
-    pitcher_data = pitcher(l_name, f_name)
-    pitcher_id = str(pitcher_data['key_mlbam'][0])
-    pitching_data = pybaseball.statcast_pitcher(start_date, end_date, pitcher_id)
-    dates = list(Counter(pitching_data['game_date']))
-    clean_period = []
-    for x in dates:
-        date_split = x.split('-')
-        day = date_split[2]
-        if day[0] == '0':
-            day = day[1]
-            date_split[2] = day
-        clean_period.append('-'.join(date_split))
-    return clean_period
-
-def pitcher_game_number(dates, team):
-    months = {'Jan' : '01', 'Feb' : '02', 'Mar' : '03', 'Apr' : '04', 'May' : '05', 'Jun' : '06',
-          'Jul' : '07', 'Aug': '08', 'Sep' : '09', 'Oct' : '10', 'Nov' : '11', 'Dec' : '12'}
+def player(first_name, last_name, start_date, end_date):
+    player_info = pybaseball.playerid_lookup(last_name, first_name)
+    if (player_info['mlb_played_last'][0] - player_info['mlb_played_first'][0]) < 10:
+        start_year = int(player_info['mlb_played_first'][0])
+    else:
+        start_year = int(player_info['mlb_played_last'][0] - 10)
+        
+    player_id = player_info['key_mlbam'][0]
+    player_info = [player_id,start_year,str(player_info['mlb_played_last'][0])]
     
-    game_dates = []
-    for x in dates:   
-        game_date = x.split('-')
-        year = game_date[0]
-        game_date = game_date[1:]
-        game_dates.append('-'.join(game_date))        
-    
-    pitching_logs = pybaseball.team_game_logs(year, team, 'pitching')
-    test = list(pitching_logs['Date'])
-    test = [i.split() for i in test]
-    x = 0
-    for ind in test:
-        ind[0] = months.get(ind[0])
-        new_string = '-'.join(ind)
-        test[x] = new_string
-        x+=1
-    pitching_logs['Date'] = test
-    
-    game_ids = []
-    data = pybaseball.statcast(dates[0], dates[-1])
-    
-    for x in range(len(dates)):
-        game = pitching_logs.loc[pitching_logs['Date'] == game_dates[x]].reset_index()
-        game_data = data.loc[data['game_date'] == dates[x]]
-        if len(game) > 0:
-            if game['Home'][0] == True:
-                pitcher_game_data = game_data.loc[game_data['away_team'] == team]
-                game_pk = list(pitcher_game_data['game_pk'])
-                game_ids.append(game_pk[0])
-            else:
-                pitcher_game_data = game_data.loc[game_data['home_team'] == team]
-                game_pk = list(pitcher_game_data['game_pk'])
-                game_ids.append(game_pk[0])
-
-    return game_ids
-
-# Single game stats
-def pitcher_game_complete_data(game_id, pitcher_id):
-    data = pybaseball.statcast_single_game(game_id).reset_index(drop = True)
-    pitcher_data = pd.DataFrame()
-    for x in range(len(data)):
-        if data['pitcher'][x] == pitcher_id:
-            pitcher_data = pitcher_data.append(data.iloc[[x]])
-    pitcher_data = pitcher_data.reset_index(drop = True)
-    return pitcher_data
-
-# Breakdown of the pitches throw in the time period
-def pitch_summary(game_data):
-    data = Counter(game_data['pitch_type'])
+    data = pybaseball.statcast_pitcher(start_dt = start_date, end_dt = end_date, player_id = player_info[0])
+    data = data.reset_index(drop = True)
     return data
 
 # Seperate the balls, stikes, and live balls in play
@@ -143,17 +80,6 @@ def main(first_name, last_name, start_date, end_date, team):
     start_date = str(start_date)
     end_date = str(end_date)
 
-    desired_pitcher = pitcher(last_name, first_name)
-    desired_pitcher_id = desired_pitcher['key_mlbam'][0]
-    
-    games = games_pitched_in_timeframe(first_name, last_name, start_date, end_date)
-    
-    game_id = pitcher_game_number(games, team)
-    
-    game_pitch_data = pd.DataFrame()
-    for x in game_id:
-        game_pitch_data = game_pitch_data.append(pitcher_game_complete_data(x, desired_pitcher_id))
-    game_pitch_data = game_pitch_data.iloc[::-1].reset_index(drop = True)
-    
-    pitch_breakdowns = ball_and_strike(game_pitch_data)
+    player_data = player(first_name,last_name,start_date,end_date)
+    pitch_breakdowns = ball_and_strike(player_data)
     pitch_graph(pitch_breakdowns)
