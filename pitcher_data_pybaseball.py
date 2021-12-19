@@ -1,7 +1,6 @@
 import pybaseball
 import pandas as pd
 import json
-import matplotlib.pyplot as plt
 from collections import Counter
 
 def pitcher(last_name, first_name):
@@ -36,7 +35,7 @@ def pitcher_game_number(dates, team):
         game_date = game_date[1:]
         game_dates.append('-'.join(game_date))        
     
-    pitching_logs = pybaseball.team_game_logs(year, team, "pitching")
+    pitching_logs = pybaseball.team_game_logs(year, team, 'pitching')
     test = list(pitching_logs['Date'])
     test = [i.split() for i in test]
     x = 0
@@ -99,41 +98,44 @@ def ball_and_strike(game_data):
     return balls, strikes, live
 
 # Display the pitching data for the time period in a scatter plot color coded by strike, ball or live ball in play
-def pitch_graph(pitching_breakdowns, start_date, end_date):
+def pitch_graph(pitching_breakdowns):
     pitch_ball = pitching_breakdowns[0]
     balls_xs = [x for x in pitch_ball['plate_x'].reset_index(drop = True)]
     balls_zs = [x for x in pitch_ball['plate_z'].reset_index(drop = True)]
+    balls_type = [x for x in pitch_ball['pitch_type'].reset_index(drop = True)]
     balls_colors = ['blue' for x in range(len(balls_xs))]
+    
 
     pitch_strike = pitching_breakdowns[1]
     strikes_xs = [x for x in pitch_strike['plate_x'].reset_index(drop = True)]
     strikes_zs = [x for x in pitch_strike['plate_z'].reset_index(drop = True)]
+    strikes_type = [x for x in pitch_strike['pitch_type'].reset_index(drop = True)]
     strikes_colors = ['red' for x in range(len(strikes_xs))]
 
     pitch_hit = pitching_breakdowns[2]
     hit_xs = [x for x in pitch_hit['plate_x'].reset_index(drop = True)]
     hit_zs = [x for x in pitch_hit['plate_z'].reset_index(drop = True)]
+    hit_type = [x for x in pitch_hit['pitch_type'].reset_index(drop = True)]
     hit_colors = ['green' for x in range(len(hit_xs))]
 
 
     xs = strikes_xs + balls_xs + hit_xs
     zs = strikes_zs + balls_zs + hit_zs
+    pitch_type = strikes_type + balls_type + hit_type
     colors = strikes_colors + balls_colors + hit_colors
-    
+
     values = {
         'plate_x': xs,
         'plate_z': zs,
+        'pitch_type': pitch_type,
         'indicator': colors
     }
 
     jsonString =  json.dumps(values)
-    jsonFile = open("data/pitcher_graph_data.json", "w")
+    jsonFile = open('data/pitcher_graph_data.json', 'w')
     jsonFile.write(jsonString)
     jsonFile.close()
     return jsonString
-    # plt.title('All Pitches Thrown between ' + start_date + ' and ' + end_date)
-    # plt.scatter(xs,zs,color = colors)
-    # plt.show()
 
 def main(first_name, last_name, start_date, end_date, team):
     first_name = first_name.lower()
@@ -153,15 +155,5 @@ def main(first_name, last_name, start_date, end_date, team):
         game_pitch_data = game_pitch_data.append(pitcher_game_complete_data(x, desired_pitcher_id))
     game_pitch_data = game_pitch_data.iloc[::-1].reset_index(drop = True)
     
-    # pitching_dates = games_pitched_in_timeframe(first_name, last_name, start_date, end_date)
-    # pitch_breakdown_in_timeframe = pitch_summary(game_pitch_data)
-    
-    # # summary stats at the top
-    # print(first_name, last_name)
-    # print(start_date + ' through ' + end_date)
-    # print('Total Games Pitched: ' + str(len(pitching_dates)))
-    # print('Dates Player Pitched: ' + str(pitching_dates))
-    # print('Pitch Brekdown for Time Period: ' + str(pitch_breakdown_in_timeframe))
-    
     pitch_breakdowns = ball_and_strike(game_pitch_data)
-    pitch_graph(pitch_breakdowns, start_date, end_date)
+    pitch_graph(pitch_breakdowns)

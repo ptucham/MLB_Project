@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <meta charset='UTF-8'>
+    <head>
+        <script src='https://d3js.org/d3.v7.min.js'></script>
+    </head>
+    <body>
+        <h1>Batter Info</h1>
+        <div class='pitcher_info'>
+            <p>Batter Name: {{fname}} {{lname}}</p>
+            <p>Dates: {{sdate}} through {{edate}}</p>
+            <p>Team: {{team}}</p>
+        </div>
+        <svg width = 500 height = 500>
+            <text id = 'pitch_type' x = 485 y = 5 text-anchor = 'end' alignment-baseline = 'hanging'></text>
+        </svg>
+        
+        <script>
+            var data = JSON.parse('{{ data | tojson | safe}}');
+
+            const svg = d3.select('svg');
+            const height = svg.attr('height');
+            const width = svg.attr('width');
+            const margin = {top: 10, right: 30, bottom: 50, left: 50};
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+            const chartArea = svg.append('g')
+                .attr('transform',`translate(${margin.left},${margin.top})`);
+
+            const plate_x_Extent = d3.extent(data['plate_x']);
+            const plate_x_Scale = d3.scaleLinear().domain(plate_x_Extent).range([0, chartWidth]);
+
+            const plate_z_Extent = d3.extent(data['plate_z']);
+            const plate_z_Scale = d3.scaleLinear().domain(plate_z_Extent).range([chartHeight,0]);
+
+            let leftAxis = d3.axisLeft(plate_z_Scale);
+
+            chartArea.append('g')
+            .attr('class', 'y axis')
+            .attr('transform', `translate(${margin.left-50},${margin.top})`)
+            .call(leftAxis);
+
+            let bottomAxis = d3.axisBottom(plate_x_Scale);
+
+            chartArea.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', `translate(${margin.left - 50},${chartHeight + margin.top})`)
+            .call(bottomAxis);
+
+            
+            for (let i = 0; i < data['plate_x'].length; i++) {
+                let circle = chartArea.append('circle')
+                    .attr('r',3)
+                    .attr('cx', plate_x_Scale(data['plate_x'][i]))
+                    .attr('cy', plate_z_Scale(data['plate_z'][i]))
+                    .attr('label', data['pitch_type'][i])
+                    .style('fill', data['indicator'][i])
+                    .on("mouseover", function(){
+                        d3.select(this)
+                        .transition().duration(100)
+                        .attr('stroke','black')
+                        .attr('stroke-width', 4)
+                        .attr('r', 7)
+                        .attr('fill', data['indicator'][i]);
+                        d3.select('#pitch_type').text('Pitch Type: ' + data['pitch_type'][i]);
+                        })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .transition().duration(100)
+                            .attr('stroke-width', 0)
+                            .attr('r', 3)
+                            .attr('fill', data['indicator'][i]);
+                        
+                        d3.select('#pitch_type').text('');
+                    })
+                };              
+        </script>
+    </body>
+</html>
