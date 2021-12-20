@@ -2,25 +2,26 @@ import pybaseball
 import pandas as pd
 import json
 
+# The commented out sections will be used for the machine learning section to have ideally ten years of data.
 def player(first_name, last_name, start_date, end_date):
     player_info = pybaseball.playerid_lookup(last_name, first_name)
-    if (player_info['mlb_played_last'][0] - player_info['mlb_played_first'][0]) < 10:
-        start_year = int(player_info['mlb_played_first'][0])
-    else:
-        start_year = int(player_info['mlb_played_last'][0] - 10)
+    # if (player_info['mlb_played_last'][0] - player_info['mlb_played_first'][0]) < 10:
+    #     start_year = int(player_info['mlb_played_first'][0])
+    # else:
+    #     start_year = int(player_info['mlb_played_last'][0] - 10)
         
     player_id = player_info['key_mlbam'][0]
-    player_info = [player_id,start_year,str(player_info['mlb_played_last'][0])]
+    # player_info = [player_id,start_year,str(player_info['mlb_played_last'][0])]
     
     data = pybaseball.statcast_batter(start_dt = start_date, end_dt = end_date, player_id = player_info[0])
     data = data.reset_index(drop = True)
     return data
 
+# Seperate the pitchs into how they were called or if a ball was hit into play.
 def ball_and_strike(game_data):
     balls = pd.DataFrame(columns = ['pitch_type', 'description'])
     strikes = pd.DataFrame(columns = ['pitch_type', 'description'])
     live = pd.DataFrame(columns = ['pitch_type', 'description'])
-    k = 0
     for x in range(len(game_data)):
         if game_data['description'][x] == 'ball':
             details = game_data[['pitch_type','description', 'plate_x', 'plate_z']].iloc[[x]]
@@ -33,6 +34,7 @@ def ball_and_strike(game_data):
             strikes = strikes.append(details)
     return balls, strikes, live
 
+# Send data to a json file to be displayed in a scatter plot
 def pitch_graph(pitching_breakdowns):
     pitch_ball = pitching_breakdowns[0]
     balls_xs = [x for x in pitch_ball['plate_x'].reset_index(drop = True)]
